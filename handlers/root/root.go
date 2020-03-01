@@ -3,7 +3,6 @@ package root
 import (
 	"fmt"
 	"net/http"
-
 )
 
 // Handler HTTP Request handler for requests to server root

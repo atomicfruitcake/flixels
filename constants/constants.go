@@ -3,12 +3,12 @@ package constants
 // AppPort HTTP port where the application is run on
 const AppPort = "8080"
 
-// Job data used to identify and transfer jobs handles by flixels
+// Job data used to to specify the target file and rendition type for encoding jobs
 type Job struct {
-	AssetID string
-	JobID   string
-	Service string
-	Status  int
+	S3URL       string
+	Rendition   string
+	Service     string
+	Status      int
 }
 
 // JobReq data request format used when querying job statuses

@@ -12,7 +12,6 @@ import (
 
 	"github.com/atomicfruitcake/flixels/constants"
 	"github.com/atomicfruitcake/flixels/handlers/createjob"
-	"github.com/atomicfruitcake/flixels/handlers/getjob"
 	"github.com/atomicfruitcake/flixels/handlers/health"
 	"github.com/atomicfruitcake/flixels/handlers/root"
 	"github.com/atomicfruitcake/flixels/middleware/auth"
@@ -22,11 +21,6 @@ import (
 )
 
 func main() {
-	err := redis.Ping()
-	if err != nil {
-		log.Fatal("Could not connect to Redis, cannot boot flixels")
-
-	}
 	log.Println("Starting a new flixels HTTP Server")
 	log.Println("Building the Gorilla MUX Router")
 	r := mux.NewRouter().StrictSlash(true)
@@ -35,13 +29,12 @@ func main() {
 	r.HandleFunc("/health", health.Handler).Methods("GET")
 	r.Use(logging.Middleware)
 
-	jr := r.PathPrefix("/job").Subrouter()
-	jr.HandleFunc("/createJob", createjob.Handler).Methods("POST")
-	jr.HandleFunc("/getJob", getjob.Handler).Methods("GET", "POST")
+	en := r.PathPrefix("/encode").Subrouter()
+	en.HandleFunc("/createJob", createjob.Handler).Methods("POST")
 
 	am := auth.Middleware{}
 	am.Populate()
-	jr.Use(am.Middleware)
+	en.Use(am.Middleware)
 	http.Handle("/", r)
 
 	var wait time.Duration

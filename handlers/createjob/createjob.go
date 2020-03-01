@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/atomicfruitcake/flixels/client"
+	"github.com/atomicfruitcake/flixels/mediaconvertclient"
 	"github.com/atomicfruitcake/flixels/constants"
 )
 
@@ -21,14 +21,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	j.Status = constants.Processing
-	bytes, err := json.Marshal(j)
+	params, err := json.Marshal(j)
 	if err != nil {
 		msg := fmt.Sprintf("Error marshalling request body due to %v", err)
 		log.Print(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	err = client.SendJob(j.Service, bytes)
+	err = mediaconvertclient.CreateEncodeJob(j.S3URL, j.Rendition)
 	if err != nil {
 		msg := fmt.Sprintf("Error sending job to service due to %v", err)
 		log.Print(msg)

@@ -1,49 +1,34 @@
 package mediaconvertclient
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"log"
 
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/mediaconvert"
 )
+var sess = session.Must(
+		session.NewSessionWithOptions(
+			session.Options{SharedConfigState: session.SharedConfigEnable,
+}))
 
-// Set the URL of a downstream client
-var clientHost = "https://127.0.0.1:8080/"
-var adminToken = "exampleToken"
+var client = mediaconvert.New(sess)
 
-// Set the names of all downstream services
-var validServices = map[string]bool {
-	"exampleServiceA": true,
-    "exampleServiceB": true,
-}
 // CreateEncodeJob Create a new AWS MediaConvert encode job
-func CreateEncodeJob(s3url string, body []byte) error {
+func CreateEncodeJob(s3url string, rendition string) error {
+	var i *mediaconvert.Input
+	i.FileInput := s3url
+	settings := mediaconvert.JobSettings(i)
 
+	var input *mediaconvert.CreateJobInput
+	input.Settings.Inputs = settings
 
-	req, resp := client.CreateJobRequest(params)
-	err := req.Send()
-	if err == nil { // resp is now filled
-		fmt.Println(resp)
-	}
-	func (c *MediaConvert) CreateJob(input *CreateJobInput) (*CreateJobOutput, error)
-
-	if !validServices[service] {
-		return error(fmt.Errorf("Service %s is not a valid Service", service))
-	}
-	url := fmt.Sprintf(clientHost + service)
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(body))
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("admintoken", adminToken)
-	res, err := http.DefaultClient.Do(req)
+	res, err := client.CreateJob(input)
 	if err != nil {
-		return error(fmt.Errorf("Error sending request to %s due to: %v", url, err))
+		msg := fmt.Sprintf("Error creating encode job due to %v", err)
+		log.Print(msg)
+		return err
 	}
-	defer res.Body.Close()
-	_, err = ioutil.ReadAll(res.Body)
-	if err != nil {
-		return error(fmt.Errorf("Error reading response from %s due to %v", url, err))
-	}
-	return err
+
+	return res
 }
