@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  flixels:
+    build: .
+    image: flixels
+    ports:
+      - "8080:8080"
